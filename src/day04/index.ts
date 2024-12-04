@@ -1,12 +1,12 @@
 import run from 'aocrunner'
 
-const parseInput = (rawInput: string) => rawInput.split('\n').map((line) => line.split(''))
+const parseInput = (rawInput: string) => rawInput.split('\n').map(line => line.split(''))
 
 const part1 = (rawInput: string) => {
 	const input = parseInput(rawInput)
 
 	return input.reduce<number>((count, line, i) => {
-		return count += line.reduce<number>((lineCount, element, j) => {
+		return (count += line.reduce<number>((lineCount, element, j) => {
 			if (element != 'X') return lineCount
 
 			let toCheck = checkDirection({ letter: 'M', offset: 1, i, j, input })
@@ -16,27 +16,33 @@ const part1 = (rawInput: string) => {
 			if (checkAllFalse(toCheck)) return lineCount
 
 			toCheck = checkDirection({ letter: 'S', offset: 3, i, j, input, toCheck })
-			return lineCount += Object.values(toCheck).filter(v => v).length
-		}, 0)
+			return (lineCount += Object.values(toCheck).filter(v => v).length)
+		}, 0))
 	}, 0)
 }
 
 type Directions = {
-	leftTop: boolean,
-	top: boolean,
-	rightTop: boolean,
-	left: boolean,
-	right: boolean,
-	leftBottom: boolean,
-	bottom: boolean,
-	rightBottom: boolean,
+	leftTop: boolean
+	top: boolean
+	rightTop: boolean
+	left: boolean
+	right: boolean
+	leftBottom: boolean
+	bottom: boolean
+	rightBottom: boolean
 }
 
 function checkAllFalse(toCheck: Directions): boolean {
-	return !Object.values(toCheck).some((value) => value)
+	return !Object.values(toCheck).some(value => value)
 }
 
-function filterDirections(params: { offset: number, i: number, j: number, input: string[][], toCheck?: Directions }): Directions {
+function filterDirections(params: {
+	offset: number
+	i: number
+	j: number
+	input: string[][]
+	toCheck?: Directions
+}): Directions {
 	const { offset, i, j, input } = params
 	let toCheck = params.toCheck
 
@@ -80,7 +86,14 @@ function filterDirections(params: { offset: number, i: number, j: number, input:
 	return toCheck
 }
 
-function checkDirection(params: { letter: string, offset: number, i: number, j: number, input: string[][], toCheck?: Directions }): Directions {
+function checkDirection(params: {
+	letter: string
+	offset: number
+	i: number
+	j: number
+	input: string[][]
+	toCheck?: Directions
+}): Directions {
 	const toCheck = filterDirections(params)
 	const { letter, offset, i, j, input } = params
 
@@ -100,15 +113,17 @@ const part2 = (rawInput: string) => {
 	const input = parseInput(rawInput)
 
 	return input.reduce<number>((count, line, i) => {
-		return count += line.reduce<number>((lineCount, element, j) => {
+		return (count += line.reduce<number>((lineCount, element, j) => {
 			if (element != 'A') return lineCount
 			if (i === 0 || i === input.length - 1 || j === 0 || j === input[0].length - 1) return lineCount
 
 			return ((input[i - 1][j - 1] === 'M' && input[i + 1][j + 1] === 'S') ||
 				(input[i - 1][j - 1] === 'S' && input[i + 1][j + 1] === 'M')) &&
 				((input[i - 1][j + 1] === 'M' && input[i + 1][j - 1] === 'S') ||
-					(input[i - 1][j + 1] === 'S' && input[i + 1][j - 1] === 'M')) ? ++lineCount : lineCount
-		}, 0)
+					(input[i - 1][j + 1] === 'S' && input[i + 1][j - 1] === 'M'))
+				? ++lineCount
+				: lineCount
+		}, 0))
 	}, 0)
 }
 

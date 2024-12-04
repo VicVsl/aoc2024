@@ -27,9 +27,7 @@ const part2 = (rawInput: string) => {
 		const nextProblematicIndex = checkReport(removeFromArray(report, problematicIndex + 1))
 		const currentProblematicIndex = checkReport(removeFromArray(report, problematicIndex))
 
-		if (previousProblematicIndex === -1
-			|| nextProblematicIndex === -1
-			|| currentProblematicIndex === -1) count++
+		if (previousProblematicIndex === -1 || nextProblematicIndex === -1 || currentProblematicIndex === -1) count++
 
 		return count
 	}, 0)

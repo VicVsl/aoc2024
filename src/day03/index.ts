@@ -37,7 +37,7 @@ function checkToDisable(input: string[], index: number) {
 	if (input[index] !== 'd') return false
 	if (input[index + 1] !== 'o') return false
 	if (input[index + 2] !== 'n') return false
-	if (input[index + 3] !== '\'') return false
+	if (input[index + 3] !== "'") return false
 	if (input[index + 4] !== 't') return false
 	if (input[index + 5] !== '(') return false
 	if (input[index + 6] !== ')') return false
