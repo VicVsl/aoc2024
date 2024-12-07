@@ -9,57 +9,79 @@ enum Direction {
 }
 
 type Position = {
-	guard: Direction | false
+	guard: Direction | null
 	visited: boolean
 	obstacle: boolean
+	visitDirections: {
+		up: boolean
+		down: boolean
+		left: boolean
+		right: boolean
+	}
 }
 
 type Guard = {
-	i: number
-	j: number
+	x: number
+	y: number
 	direction: Direction
 }
 
-type Obstacle = {
-	i: number
-	j: number
-	up: Obstacle | undefined
-	left: Obstacle | undefined
-	down: Obstacle | undefined
-	right: Obstacle | undefined
-}
-
 function parsePosition(char: string): Position {
+	const base = {
+		guard: null,
+		obstacle: false,
+		visited: false,
+		visitDirections: { up: false, down: false, left: false, right: false },
+	}
 	switch (char) {
 		case '#':
-			return { guard: false, visited: false, obstacle: true }
+			return { ...base, obstacle: true }
 		case '^':
-			return { guard: Direction.UP, visited: false, obstacle: false }
+			return { ...base, guard: Direction.UP }
 		case 'v':
-			return { guard: Direction.DOWN, visited: false, obstacle: false }
+			return { ...base, guard: Direction.DOWN }
 		case '<':
-			return { guard: Direction.LEFT, visited: false, obstacle: false }
+			return { ...base, guard: Direction.LEFT }
 		case '>':
-			return { guard: Direction.RIGHT, visited: false, obstacle: false }
+			return { ...base, guard: Direction.RIGHT }
 		case '.':
-			return { guard: false, visited: false, obstacle: false }
+			return { ...base }
 		default:
 			throw new Error(`Invalid char ${char}`)
 	}
 }
 
-const parseInput = (rawInput: string) => rawInput.split('\n')
-	.map(line => line.split('')
-		.map(char => parsePosition(char)))
+const parseInput = (rawInput: string) =>
+	rawInput.split('\n').map(line => line.split('').map(char => parsePosition(char)))
+
+function copyInput(input: Position[][]): Position[][] {
+	return input.map(line =>
+		line.map(position => ({
+			guard: position.guard,
+			visited: position.visited,
+			obstacle: position.obstacle,
+			visitDirections: {
+				up: position.visitDirections.up,
+				down: position.visitDirections.down,
+				left: position.visitDirections.left,
+				right: position.visitDirections.right,
+			},
+		})),
+	)
+}
 
 function findGuard(positions: Position[][]): Guard {
 	for (let i = 0; i < positions.length; i++) {
 		for (let j = 0; j < positions[i].length; j++) {
 			const guard = positions[i][j].guard
-			if (guard) return { i, j, direction: guard }
+			if (guard) return { x: j, y: i, direction: guard }
 		}
 	}
-	throw new Error('Guard not found');
+	throw new Error('Guard not found')
+}
+
+function copyGuard(guard: Guard): Guard {
+	return { x: guard.x, y: guard.y, direction: guard.direction }
 }
 
 function rotateGuard(direction: Direction): Direction {
@@ -75,22 +97,71 @@ function rotateGuard(direction: Direction): Direction {
 	}
 }
 
+function getNext(positions: Position[][], guard: Guard): {
+	position: Position
+	x: number
+	y: number
+} | undefined {
+	const { x, y, direction } = guard
 
-function getNext(positions: Position[][], guard: Guard): [Position | undefined, number, number] {
-	const { i, j, direction } = guard
-	try {
+	const { newX, newY } = (() => {
 		switch (direction) {
 			case Direction.UP:
-				return [positions[i - 1][j], i - 1, j]
+				return { newX: x, newY: y - 1 }
 			case Direction.DOWN:
-				return [positions[i + 1][j], i + 1, j]
+				return { newX: x, newY: y + 1 }
 			case Direction.LEFT:
-				return [positions[i][j - 1], i, j - 1]
+				return { newX: x - 1, newY: y }
 			case Direction.RIGHT:
-				return [positions[i][j + 1], i, j + 1]
+				return { newX: x + 1, newY: y }
 		}
+	})()
+
+	try {
+		const position = positions[newY][newX]
+		if (!position) return undefined
+		return { position, x: newX, y: newY }
 	} catch (e) {
-		return [undefined, -1, -1]
+		return undefined
+	}
+}
+
+function checkVisitedDirections(direction: Direction, position: Position): boolean {
+	let repeat
+	switch (direction) {
+		case Direction.UP:
+			repeat = position.visitDirections!!.up
+			position.visitDirections!!.up = true
+			break
+		case Direction.DOWN:
+			repeat = position.visitDirections!!.down
+			position.visitDirections!!.down = true
+			break
+		case Direction.LEFT:
+			repeat = position.visitDirections!!.left
+			position.visitDirections!!.left = true
+			break
+		case Direction.RIGHT:
+			repeat = position.visitDirections!!.right
+			position.visitDirections!!.right = true
+			break
+	}
+	return repeat
+}
+
+function isLoop(positions: Position[][], guard: Guard) {
+	while (true) {
+		const current = positions[guard.y][guard.x]
+		if (!current.visited) current.visited = true
+		else if (checkVisitedDirections(guard.direction, current)) return true
+
+		const next = getNext(positions, guard)
+		if (!next) break
+		if (next.position.obstacle) guard.direction = rotateGuard(guard.direction)
+		else {
+			guard.x = next.x
+			guard.y = next.y
+		}
 	}
 }
 
@@ -98,85 +169,59 @@ const part1 = (rawInput: string) => {
 	const input = parseInput(rawInput)
 
 	let guard = findGuard(input)
-
 	let visited = 0
 	while (true) {
-		const current = input[guard.i][guard.j]
+		const current = input[guard.y][guard.x]
 		if (!current.visited) {
 			visited++
 			current.visited = true
 		}
 
-		const [next, i, j] = getNext(input, guard)
+		const next = getNext(input, guard)
 		if (!next) break
-		if (next.obstacle) guard.direction = rotateGuard(guard.direction)
-		else guard = { i, j, direction: guard.direction }
+		if (next.position.obstacle) guard.direction = rotateGuard(guard.direction)
+		else {
+			guard.x = next.x
+			guard.y = next.y
+		}
 	}
 	return visited
-}
-
-// ------------ These were for trying to solve without brute force, might retry later ------------
-// function findObstacles(positions: Position[][]): Obstacle[] {
-// 	const obstacles: Obstacle[] = []
-// 	for (let i = 0; i < positions.length; i++) {
-// 		for (let j = 0; j < positions[i].length; j++) {
-// 			if (positions[i][j].obstacle) {
-// 				obstacles.push({
-// 					i, j, up: undefined, left: undefined, down: undefined, right: undefined
-// 				})
-// 			}
-// 		}
-// 	}
-// 	return obstacles
-// }
-
-// function scanForObstacle(obstacles: Obstacle[], obstacle: Obstacle): Obstacle {
-// 	obstacle.down = obstacles.filter(o => o.i === obstacle.i + 1 && o.j > obstacle.j)
-// 		.sort((a, b) => a.j - b.j).at(0)
-// 	obstacle.left = obstacles.filter(o => o.j === obstacle.j - 1 && o.i > obstacle.i)
-// 		.sort((a, b) => a.i - b.i).at(0)
-// 	obstacle.up = obstacles.filter(o => o.i === obstacle.i - 1 && o.j < obstacle.j)
-// 		.sort((a, b) => b.j - a.j).at(0)
-// 	obstacle.right = obstacles.filter(o => o.j === obstacle.j + 1 && o.i < obstacle.i)
-// 		.sort((a, b) => b.i - a.i).at(0)
-// 	return obstacle
-// }
-
-function isOutOfBounds(positions: Position[][], i: number, j: number): boolean {
-	return i < 0 || i >= positions[j].length || j < 0 || j >= positions.length
-}
-
-function isLoop(positions: Position[][], guard: Guard) {
-	let iters = 0
-	while (!isOutOfBounds(positions, guard.i, guard.j)) {
-		if (++iters > 10000) return true
-
-		const [next, i, j] = getNext(positions, guard)
-		if (!next) return false
-		if (next.obstacle) guard.direction = rotateGuard(guard.direction)
-		else guard = { i, j, direction: guard.direction }
-	}
-	return false
 }
 
 const part2 = (rawInput: string) => {
 	const input = parseInput(rawInput)
 
-	const guard = findGuard(input)
-	let answer = 0
-	for (let i = 0; i < input.length - 1; i++) {
+	const start = findGuard(input)
 
+	let guard = copyGuard(start)
+	const visited: { x: number; y: number }[] = []
+	const inputCopy = copyInput(input)
+	while (true) {
+		const current = inputCopy[guard.y][guard.x]
+		if (!current.visited) {
+			visited.push({ x: guard.x, y: guard.y })
+			current.visited = true
+		}
+
+		const next = getNext(inputCopy, guard)
+		if (!next) break
+		if (next.position.obstacle) guard.direction = rotateGuard(guard.direction)
+		else {
+			guard.x = next.x
+			guard.y = next.y
+		}
 	}
-	return input.reduce<number>((sum, line, i) => {
-		return sum + line.reduce<number>((count, pos, j) => {
-			if (pos.guard || pos.obstacle) return count
 
-			const inputCopy = input.map((l) => l.map((item) => ({ ...item })))
-			inputCopy[i][j].obstacle = true
+	return visited.reduce<number>((count, cords) => {
+		const { x, y } = cords
+		const { guard: hasGuard, obstacle } = input[y][x]
+		if (hasGuard || obstacle) return count
 
-			if (isLoop(inputCopy, { ...guard })) count++
-			return count
-		}, 0)
+		const inputCopy = copyInput(input)
+		inputCopy[y][x].obstacle = true
+
+		if (isLoop(inputCopy, copyGuard(start))) count++
+		return count
 	}, 0)
 }
 
