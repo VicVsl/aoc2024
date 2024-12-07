@@ -7,7 +7,7 @@
     "start": "aocrunner day",
     "build": "aocrunner build",
     "format": "prettier -w src",
-    "update:readme": "aocrunner update:readme"
+    "readme": "aocrunner update:readme"
   },
   "keywords": [
     "aoc"
