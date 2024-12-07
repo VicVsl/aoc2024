@@ -8,7 +8,7 @@ const parseInput = (rawInput: string) =>
 			right.push(second)
 			return [left, right]
 		},
-		[[], []],
+		[[], []]
 	)
 
 const part1 = (rawInput: string) => {

@@ -1,27 +1,31 @@
 import run from 'aocrunner'
 
-const parseInput = (rawInput: string) => rawInput.split('\n').map(line => {
-	const [res, list] = line.split(': ');
-	return {
-		res: Number(res),
-		list: list.split(' ').map(Number)
-	}
-})
+const parseInput = (rawInput: string) =>
+	rawInput.split('\n').map(line => {
+		const [res, list] = line.split(': ')
+		return {
+			res: Number(res),
+			list: list.split(' ').map(Number),
+		}
+	})
 
 const part1 = (rawInput: string) => {
 	const input = parseInput(rawInput)
 
 	return input.reduce<number>((count, { res, list }) => {
-		const permutations = list.reduce<number[]>((acc, val) => {
-			const newAcc: number[] = []
-			acc.forEach(accVal => {
-				if (accVal > res) return
+		const permutations = list.reduce<number[]>(
+			(acc, val) => {
+				const newAcc: number[] = []
+				acc.forEach(accVal => {
+					if (accVal > res) return
 
-				newAcc.push(accVal + val)
-				newAcc.push(accVal * val)
-			})
-			return newAcc
-		}, [1])
+					newAcc.push(accVal + val)
+					newAcc.push(accVal * val)
+				})
+				return newAcc
+			},
+			[1]
+		)
 		if (permutations.includes(res)) count += res
 		return count
 	}, 0)
@@ -31,17 +35,20 @@ const part2 = (rawInput: string) => {
 	const input = parseInput(rawInput)
 
 	return input.reduce<number>((count, { res, list }) => {
-		const permutations = list.reduce<number[]>((acc, val) => {
-			const newAcc: number[] = []
-			acc.forEach(accVal => {
-				if (accVal > res) return
+		const permutations = list.reduce<number[]>(
+			(acc, val) => {
+				const newAcc: number[] = []
+				acc.forEach(accVal => {
+					if (accVal > res) return
 
-				newAcc.push(accVal + val)
-				newAcc.push(accVal * val)
-				newAcc.push(Number(`${accVal}${val}`))
-			})
-			return newAcc
-		}, [1])
+					newAcc.push(accVal + val)
+					newAcc.push(accVal * val)
+					newAcc.push(Number(`${accVal}${val}`))
+				})
+				return newAcc
+			},
+			[1]
+		)
 		if (permutations.includes(res)) count += res
 		return count
 	}, 0)

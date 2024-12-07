@@ -66,7 +66,7 @@ function copyInput(input: Position[][]): Position[][] {
 				left: position.visitDirections.left,
 				right: position.visitDirections.right,
 			},
-		})),
+		}))
 	)
 }
 
@@ -97,11 +97,16 @@ function rotateGuard(direction: Direction): Direction {
 	}
 }
 
-function getNext(positions: Position[][], guard: Guard): {
-	position: Position
-	x: number
-	y: number
-} | undefined {
+function getNext(
+	positions: Position[][],
+	guard: Guard
+):
+	| {
+			position: Position
+			x: number
+			y: number
+	  }
+	| undefined {
 	const { x, y, direction } = guard
 
 	const { newX, newY } = (() => {

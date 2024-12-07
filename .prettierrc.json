@@ -2,10 +2,10 @@
   "arrowParens": "avoid",
   "bracketSpacing": true,
   "printWidth": 120,
-  "proseWrap": "preserve",
+  "proseWrap": "never",
   "semi": false,
   "singleQuote": true,
   "tabWidth": 4,
   "useTabs": true,
-  "trailingComma": "all"
+  "trailingComma": "es5"
 }
