@@ -69,9 +69,9 @@ npm start 1
 
 ```
 Day 01
-Time part 1: 0.696ms
-Time part 2: 4.771ms
-Both parts: 5.467ms
+Time part 1: 0.693ms
+Time part 2: 0.454ms
+Both parts: 1.147ms
 ```
 
 ```
@@ -244,7 +244,7 @@ Both parts: -
 
 ```
 Total stars: 16/50
-Total time: 1744.249ms
+Total time: 1739.928ms
 ```
 
 <!--/RESULTS-->

@@ -23,7 +23,15 @@ const part1 = (rawInput: string) => {
 const part2 = (rawInput: string) => {
 	const [left, right] = parseInput(rawInput)
 
-	return left.reduce((sum, value) => sum + value * right.filter(v => v === value).length, 0)
+	const rightMap = right.reduce<Map<number, number>>((map, value) => {
+		if (!map.has(value)) {
+			map.set(value, 0)
+		}
+		map.set(value, map.get(value)! + 1)
+		return map
+	}, new Map())
+
+	return left.reduce((sum, value) => sum + value * (rightMap.get(value) ?? 0), 0)
 }
 
 run({
