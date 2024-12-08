@@ -102,10 +102,10 @@ function getNext(
 	guard: Guard
 ):
 	| {
-		position: Position
-		x: number
-		y: number
-	}
+			position: Position
+			x: number
+			y: number
+	  }
 	| undefined {
 	const { x, y, direction } = guard
 
