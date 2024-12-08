@@ -8,9 +8,9 @@ const parseInput = (rawInput: string) => {
 }
 
 function createOrderMap(orders: number[][]) {
-	return orders.reduce<Map<number, number[]>>((map, [a, b]) => {
-		if (!map.has(a)) map.set(a, [])
-		if (!map.get(a)!.find(x => x === b)) map.get(a)!.push(b)
+	return orders.reduce<Map<number, Set<number>>>((map, [a, b]) => {
+		if (!map.has(a)) map.set(a, new Set())
+		map.get(a)!.add(b)
 		return map
 	}, new Map())
 }
@@ -24,8 +24,8 @@ const part1 = (rawInput: string) => {
 		const valid = update.every((value, index) => {
 			const prev = update.slice(0, index)
 			const after = orderMap.get(value)
-			if (prev.length === 0 || !after || after.length === 0) return true
-			return !prev.some(val => after.includes(val))
+			if (prev.length === 0 || !after || after.size === 0) return true
+			return !prev.some(val => after.has(val))
 		})
 		return valid ? count + update[Math.floor(update.length / 2)] : count
 	}, 0)
@@ -42,15 +42,14 @@ const part2 = (rawInput: string) => {
 		for (let index = 0; index < update.length; index++) {
 			const prev = update.slice(0, index)
 			const after = orderMap.get(update[index])
-			if (prev.length === 0 || !after || after.length === 0) continue
+			if (prev.length === 0 || !after || after.size === 0) continue
 
-			const problem = prev.find(val => after.includes(val))
-			if (!problem) continue
-			const problemIndex = prev.indexOf(problem)
+			const problem = prev.findIndex(val => after.has(val))
+			if (problem === -1) continue
 
 			const temp = update[index]
-			update[index] = update[problemIndex]
-			update[problemIndex] = temp
+			update[index] = update[problem]
+			update[problem] = temp
 
 			valid = false
 			index = -1
