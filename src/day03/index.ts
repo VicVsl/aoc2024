@@ -2,46 +2,58 @@ import run from 'aocrunner'
 
 const parseInput = (rawInput: string) => rawInput.split('')
 
+function getMul(input: string[], index: number): number {
+	if (
+		input[index] !== 'm' ||
+		input[index + 1] !== 'u' ||
+		input[index + 2] !== 'l' ||
+		input[index + 3] !== '('
+	) return 0
+
+	const first = []
+	const startFirst = index + 4
+	for (let i = 0; i < first.length + 1; i++) {
+		const element = input[startFirst + i]
+		if (Number.isInteger(Number(element))) first.push(element)
+		else if (element !== ',') return 0
+	}
+
+	const second = []
+	const startSecond = index + 5 + first.length
+	for (let i = 0; i < second.length + 1; i++) {
+		const element = input[startSecond + i]
+		if (Number.isInteger(Number(element))) second.push(element)
+		else if (element !== ')') return 0
+	}
+
+	return Number(first.join('')) * Number(second.join(''))
+}
+
 const part1 = (rawInput: string) => {
 	const input = parseInput(rawInput)
 
-	return input.reduce<number>((count, _, index) => {
-		const first = []
-		const second = []
-
-		if (input[index] !== 'm') return count
-		if (input[index + 1] !== 'u') return count
-		if (input[index + 2] !== 'l') return count
-		if (input[index + 3] !== '(') return count
-		if (!Number.isNaN(parseInt(input[index + 4]))) first.push(input[index + 4])
-
-		for (let i = 0; i < first.length; i++) {
-			const element = input[index + 5 + i]
-			if (!Number.isNaN(parseInt(element))) first.push(element)
-			else if (element !== ',') return count
-		}
-
-		if (!Number.isNaN(parseInt(input[index + 5 + first.length]))) second.push(input[index + 5 + first.length])
-
-		for (let i = 0; i < second.length; i++) {
-			const element = input[index + 6 + first.length + i]
-			if (!Number.isNaN(parseInt(element))) second.push(element)
-			else if (element !== ')') return count
-		}
-
-		return count + parseInt(first.join('')) * parseInt(second.join(''))
-	}, 0)
+	return input.reduce<number>((count, _, index) => count + getMul(input, index), 0)
 }
 
 function checkToDisable(input: string[], index: number) {
-	if (input[index] !== 'd') return false
-	if (input[index + 1] !== 'o') return false
-	if (input[index + 2] !== 'n') return false
-	if (input[index + 3] !== "'") return false
-	if (input[index + 4] !== 't') return false
-	if (input[index + 5] !== '(') return false
-	if (input[index + 6] !== ')') return false
-	return true
+	return (
+		input[index] === 'd' &&
+		input[index + 1] === 'o' &&
+		input[index + 2] === 'n' &&
+		input[index + 3] === "'" &&
+		input[index + 4] === 't' &&
+		input[index + 5] === '(' &&
+		input[index + 6] === ')'
+	)
+}
+
+function checkToEnable(input: string[], index: number) {
+	return (
+		input[index] === 'd' &&
+		input[index + 1] === 'o' &&
+		input[index + 2] === '(' &&
+		input[index + 3] === ')'
+	)
 }
 
 const part2 = (rawInput: string) => {
@@ -49,44 +61,15 @@ const part2 = (rawInput: string) => {
 
 	let enabled = true
 	return input.reduce<number>((count, _, index) => {
-		if (!enabled) {
-			if (input[index] !== 'd') return count
-			if (input[index + 1] !== 'o') return count
-			if (input[index + 2] !== '(') return count
-			if (input[index + 3] !== ')') return count
-			enabled = true
-			return count
-		}
-
 		if (enabled) {
 			enabled = !checkToDisable(input, index)
 			if (!enabled) return count
+		} else {
+			enabled = checkToEnable(input, index)
+			return count
 		}
 
-		const first = []
-		const second = []
-
-		if (input[index] !== 'm') return count
-		if (input[index + 1] !== 'u') return count
-		if (input[index + 2] !== 'l') return count
-		if (input[index + 3] !== '(') return count
-		if (!Number.isNaN(parseInt(input[index + 4]))) first.push(input[index + 4])
-
-		for (let i = 0; i < first.length; i++) {
-			const element = input[index + 5 + i]
-			if (!Number.isNaN(parseInt(element))) first.push(element)
-			else if (element !== ',') return count
-		}
-
-		if (!Number.isNaN(parseInt(input[index + 5 + first.length]))) second.push(input[index + 5 + first.length])
-
-		for (let i = 0; i < second.length; i++) {
-			const element = input[index + 6 + first.length + i]
-			if (!Number.isNaN(parseInt(element))) second.push(element)
-			else if (element !== ')') return count
-		}
-
-		return count + parseInt(first.join('')) * parseInt(second.join(''))
+		return count + getMul(input, index)
 	}, 0)
 }
 

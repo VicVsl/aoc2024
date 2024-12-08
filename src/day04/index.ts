@@ -115,7 +115,8 @@ const part2 = (rawInput: string) => {
 	return input.reduce<number>((count, line, i) => {
 		return (count += line.reduce<number>((lineCount, element, j) => {
 			if (element != 'A') return lineCount
-			if (i === 0 || i === input.length - 1 || j === 0 || j === input[0].length - 1) return lineCount
+			if (i === 0 || i === input.length - 1 || j === 0 || j === input[0].length - 1)
+				return lineCount
 
 			return ((input[i - 1][j - 1] === 'M' && input[i + 1][j + 1] === 'S') ||
 				(input[i - 1][j - 1] === 'S' && input[i + 1][j + 1] === 'M')) &&
