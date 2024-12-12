@@ -18,17 +18,17 @@ function getNextStones(value: number) {
 const part1 = (rawInput: string) => {
 	const input = parseInput(rawInput)
 
-	return input.reduce<number>((count, initial) => {
-		let list = [initial]
-		for (let i = 0; i < 25; i++) {
-			list = list.reduce<number[]>((acc, value) => {
-				acc.push(...getNextStones(value))
-				return acc
-			}, [])
-		}
+	let stones = new Map<number, number>()
+	input.forEach(value => stones.set(value, 1))
 
-		return count + list.length
-	}, 0)
+	for (let i = 0; i < 25; i++) {
+		stones = Array.from(stones.entries()).reduce((map, [value, amount]) => {
+			getNextStones(value).forEach(stone => map.set(stone, (map.get(stone) ?? 0) + amount))
+			return map
+		}, new Map<number, number>())
+	}
+
+	return Array.from(stones.values()).reduce((count, value) => count + value, 0)
 }
 
 const part2 = (rawInput: string) => {
