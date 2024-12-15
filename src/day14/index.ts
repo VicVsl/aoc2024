@@ -78,10 +78,12 @@ const part2 = (rawInput: string) => {
 	const maxTime = 10000
 
 	let output = ''
+	let answer = -1
 
 	for (let time = 0; time <= maxTime; time++) {
 		const robotsPositions = getRobotsPositions(time, input, xSize, ySize)
 		const gridString = renderMap(robotsPositions, xSize, ySize)
+		answer = gridString.includes('#######') ? time : answer
 
 		output += `Time: ${time}\n`
 		output += gridString + '\n\n'
@@ -90,7 +92,7 @@ const part2 = (rawInput: string) => {
 	fs.writeFile('src/day14/robots.txt', output)
 	console.log(`Simulation written`)
 
-	return 6587
+	return answer
 }
 
 run({
