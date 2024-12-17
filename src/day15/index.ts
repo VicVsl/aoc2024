@@ -68,9 +68,7 @@ function getTwinDirection(state: State): Direction {
 function findRobot(map: State[][]): [number, number] {
 	for (let y = 0; y < map.length; y++) {
 		for (let x = 0; x < map[y].length; x++) {
-			if (map[y][x] === State.ROBOT) {
-				return [x, y]
-			}
+			if (map[y][x] === State.ROBOT) return [x, y]
 		}
 	}
 	throw new Error('Robot not found')
